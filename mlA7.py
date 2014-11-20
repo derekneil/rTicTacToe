@@ -87,7 +87,7 @@ def updateValue(player, b, pb):
 def tictactoe():
     size = 3
 
-    numGames = 10000000
+    numGames = 10000
     playerScores = [0]*(numPlayers+1)
 
     learning = []
@@ -112,6 +112,8 @@ def tictactoe():
                 updateValue(player, board, lastMove)
 
         if DEBUG:
+            print 'last three moves were....'
+            print_board(lastMove)
             print_board(previousBoard)
             print_board(board)
 
@@ -134,30 +136,24 @@ def tictactoe():
         for i in xrange(numPlayers):
             f = fitness[player]
             if '-1-1-1-10-1-1-1-1' in f:
-                result.append(fitness[player]['-1-1-1-10-1-1-1-1'])
+                result.append(f['-1-1-1-10-1-1-1-1'])
             else:
                 result.append(0)
             if '-1-1-1-11-1-1-1-1' in f:
-                result.append(fitness[player]['-1-1-1-11-1-1-1-1'])
+                result.append(f['-1-1-1-11-1-1-1-1'])
             else:
                 result.append(0)
         learning.append(result)
 
         #intermediate results
         if DEBUG:
-            result = [g+1]
             for i in xrange(numPlayers):
                 print 'player'+`i+1`+' score: '+`float(playerScores[i])/(g+1)`
 
-                f = fitness[player]
                 if '-1-1-1-10-1-1-1-1' in f:
-                    print 'player'+`i+1`+' center V: '+`fitness[player]['-1-1-1-10-1-1-1-1']`
-                    result.append(fitness[player]['-1-1-1-10-1-1-1-1'])
-                else:
-                    result.append(0)
+                    print 'player'+`i+1`+' center0 V: '+`fitness[player]['-1-1-1-10-1-1-1-1']`
                 if '-1-1-1-11-1-1-1-1' in f:
-                    print 'player'+`i+1`+' center V: '+`f['-1-1-1-11-1-1-1-1']`
-                    result.append(fitness[player]['-1-1-1-11-1-1-1-1'])
+                    print 'player'+`i+1`+' center1 V: '+`f['-1-1-1-11-1-1-1-1']`
             print 'draws: '+`float(playerScores[numPlayers])/(g+1)`
             print 'done game',g
             print "====================="
@@ -167,9 +163,9 @@ def tictactoe():
                     print 'player'+`i+1`+' score: '+`float(playerScores[i])/(g+1)`
                     f = fitness[player]
                     if '-1-1-1-10-1-1-1-1' in f:
-                        print 'player'+`i+1`+' center V: '+`fitness[player]['-1-1-1-10-1-1-1-1']`
+                        print 'player'+`i+1`+' center1 V: '+`fitness[player]['-1-1-1-10-1-1-1-1']`
                     if '-1-1-1-11-1-1-1-1' in f:
-                        print 'player'+`i+1`+' center V: '+`f['-1-1-1-11-1-1-1-1']`
+                        print 'player'+`i+1`+' center0 V: '+`f['-1-1-1-11-1-1-1-1']`
                 print 'draws: '+`float(playerScores[numPlayers])/(g+1)`
                 print 'done game',g
                 print "====================="
@@ -179,11 +175,11 @@ def tictactoe():
         print 'player'+`i+1`+' score: '+`float(playerScores[i])/numGames`
         f = fitness[player]
         if '-1-1-1-10-1-1-1-1' in f:
-            print 'player'+`i+1`+' center V: '+`fitness[player]['-1-1-1-10-1-1-1-1']`
+            print 'player'+`i+1`+' center0 V: '+`fitness[player]['-1-1-1-10-1-1-1-1']`
         if '-1-1-1-11-1-1-1-1' in f:
-            print 'player'+`i+1`+' center V: '+`f['-1-1-1-11-1-1-1-1']`
+            print 'player'+`i+1`+' center1 V: '+`f['-1-1-1-11-1-1-1-1']`
     print 'draws: '+`float(playerScores[numPlayers])/numGames`
-    print 'done game',numGames
+    print 'games:',numGames
     print "====================="
 
 
@@ -223,6 +219,7 @@ DEBUG = False
 numPlayers = 2
 states = [{}]*numPlayers
 fitness = [{}]*numPlayers
+
 tictactoe()
 
 # fourinarow()
