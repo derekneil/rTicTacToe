@@ -3,6 +3,7 @@ csci4155 A7 reinforcement learning
 '''
 import math
 import random
+import matplotlib.pyplot as plt
 
 def state(player, key):
     playerStates = states[player]
@@ -181,6 +182,30 @@ def tictactoe():
     print 'draws: '+`float(playerScores[numPlayers])/numGames`
     print 'games:',numGames
     print "====================="
+
+    #graph results
+    fig, ax = plt.subplots()
+    fig.canvas.draw()
+    cmap = plt.cm.get_cmap('spectral')
+    c=0
+    for game in learning:
+#         print game
+        plt.scatter(x=game[0], y=game[1], s=25, c=cmap(0.3), marker='x')
+        plt.scatter(x=game[0], y=game[2], s=25, c=cmap(0.8), marker='+')
+        c+=1
+
+    plt.xlabel("games")
+    plt.ylabel("center value")
+    plt.xlim([0,numGames])
+
+#     xlabels = ['']
+#     xlabels += np.array(accuracyStats)[:,0]
+#     print xlabels
+#     plt.locator_params(nbins=len(xlabels)+1)
+#     plt.axis([-1,len(xlabels)-1,0.5,1.05])
+#     ax.set_xticklabels(xlabels, rotation=90)
+
+    plt.show()
 
 
 def print_board(board):
