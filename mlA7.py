@@ -1,7 +1,6 @@
 '''
 csci4155 A7 reinforcement learning
 '''
-import math
 import random
 import matplotlib.pyplot as plt
 
@@ -88,7 +87,7 @@ def updateValue(player, b, pb):
 def tictactoe():
     size = 3
 
-    numGames = 10000
+    numGames = 5000
     playerScores = [0]*(numPlayers+1)
 
     learning = []
@@ -148,40 +147,13 @@ def tictactoe():
 
         #intermediate results
         if DEBUG:
-            for i in xrange(numPlayers):
-                print 'player'+`i+1`+' score: '+`float(playerScores[i])/(g+1)`
-
-                if '-1-1-1-10-1-1-1-1' in f:
-                    print 'player'+`i+1`+' center0 V: '+`fitness[player]['-1-1-1-10-1-1-1-1']`
-                if '-1-1-1-11-1-1-1-1' in f:
-                    print 'player'+`i+1`+' center1 V: '+`f['-1-1-1-11-1-1-1-1']`
-            print 'draws: '+`float(playerScores[numPlayers])/(g+1)`
-            print 'done game',g
-            print "====================="
+            printStats(playerScores, g, player)
         else:
             if g%1000 == 0:
-                for i in xrange(numPlayers):
-                    print 'player'+`i+1`+' score: '+`float(playerScores[i])/(g+1)`
-                    f = fitness[player]
-                    if '-1-1-1-10-1-1-1-1' in f:
-                        print 'player'+`i+1`+' center1 V: '+`fitness[player]['-1-1-1-10-1-1-1-1']`
-                    if '-1-1-1-11-1-1-1-1' in f:
-                        print 'player'+`i+1`+' center0 V: '+`f['-1-1-1-11-1-1-1-1']`
-                print 'draws: '+`float(playerScores[numPlayers])/(g+1)`
-                print 'done game',g
-                print "====================="
+                printStats(playerScores, g, player)
 
     #final result
-    for i in xrange(numPlayers):
-        print 'player'+`i+1`+' score: '+`float(playerScores[i])/numGames`
-        f = fitness[player]
-        if '-1-1-1-10-1-1-1-1' in f:
-            print 'player'+`i+1`+' center0 V: '+`fitness[player]['-1-1-1-10-1-1-1-1']`
-        if '-1-1-1-11-1-1-1-1' in f:
-            print 'player'+`i+1`+' center1 V: '+`f['-1-1-1-11-1-1-1-1']`
-    print 'draws: '+`float(playerScores[numPlayers])/numGames`
-    print 'games:',numGames
-    print "====================="
+    printStats(playerScores, numGames, player)
 
     #graph results
     fig, ax = plt.subplots()
@@ -230,6 +202,20 @@ def print_board(board):
             print "-----------------"
         else:
             print
+
+def printStats(playerScores, g, player):
+    for i in xrange(numPlayers):
+        print 'player' + `i + 1` + ' score: ' + `float(playerScores[i]) / (g + 1)`
+        f = fitness[player]
+        if '-1-1-1-10-1-1-1-1' in f:
+            print 'player' + `i + 1` + ' center1 V: ' + `f['-1-1-1-10-1-1-1-1']`
+        if '-1-1-1-11-1-1-1-1' in f:
+            print 'player' + `i + 1` + ' center0 V: ' + `f['-1-1-1-11-1-1-1-1']`
+
+    print 'draws: ' + `float(playerScores[numPlayers]) / (g + 1)`
+    print 'done game', g
+    print "====================="
+
 
 
 '''
