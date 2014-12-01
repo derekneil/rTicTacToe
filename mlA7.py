@@ -91,27 +91,33 @@ def updateValues(player, reward, b, lm):
 
     lmkey = ''
     key = ''
-    for i in equivalent:
-        lmkey = `lm[i[0]]`+`lm[i[1]]`+`lm[i[2]]`+`lm[i[3]]`+`lm[i[4]]`+`lm[i[5]]`+`lm[i[6]]`+`lm[i[7]]`+`lm[i[8]]`
-        key = `b[i[0]]`+`b[i[1]]`+`b[i[2]]`+`b[i[3]]`+`b[i[4]]`+`b[i[5]]`+`b[i[6]]`+`b[i[7]]`+`b[i[8]]`
 
-        if reward != 0: #update value for winning state
-            if not key in v:
-                v[key] = reward
-            else:
-                if checkReward(v[key],reward):
-                    print key
-                    print 'v[key]:'+`v[key]`+' reward:'+`reward`
-                    raise
-                v[key] = reward
+    if reward!=0:
+        for i in equivalent:
+            key = `b[i[0]]`+`b[i[1]]`+`b[i[2]]`+`b[i[3]]`+`b[i[4]]`+`b[i[5]]`+`b[i[6]]`+`b[i[7]]`+`b[i[8]]`
 
-        else: #update value that led to current state
-            if not key in v:
-                v[key] = defaultValue
-            if not lmkey in v:
-                v[lmkey] = defaultValue
+            if reward != 0: #update value for winning state
+                if not key in v:
+                    v[key] = reward
+                else:
+                    if checkReward(v[key],reward):
+                        print key
+                        print 'v[key]:'+`v[key]`+' reward:'+`reward`
+                        raise
+                    v[key] = reward
 
-            v[lmkey] = learningRate * (reward + v[key] - v[lmkey])
+    else: #it's an intermediate update
+        batchUpdate =[]*len(equivalent)
+        #need to do a batch update to all rotation at same time to prevent recursive updates
+        for i in equivalent:
+            lmkey = `lm[i[0]]`+`lm[i[1]]`+`lm[i[2]]`+`lm[i[3]]`+`lm[i[4]]`+`lm[i[5]]`+`lm[i[6]]`+`lm[i[7]]`+`lm[i[8]]`
+            key = `b[i[0]]`+`b[i[1]]`+`b[i[2]]`+`b[i[3]]`+`b[i[4]]`+`b[i[5]]`+`b[i[6]]`+`b[i[7]]`+`b[i[8]]`
+            batchUpdate.append([lmkey, key, checkValue(v,lmkey), checkValue(v,key)])
+            #             u       0     1          2                    3
+
+        for u in batchUpdate:
+            v[u[0]] = learningRate * (reward + u[3] - u[2])
+#             print 'w/v[key]',checkValue(v,u[1]),' v[lmkey] update', u[2],'->', checkValue(v,u[0])
 
 def checkReward(oldValue, reward):
     if oldValue == -reward:
