@@ -9,9 +9,10 @@ import sys
 import numpy as np
 
 def move(player, b):
-    # check value of each possible move that could be made from current checkValu
+    # check value of each possible move that could be made from current state
     maxValue = (-(sys.maxint - 1))
     maxValueMoves = []
+    otherMoves = []
     n = len(b)
     for move in xrange(n):
         if b[move] == -1:
@@ -20,30 +21,35 @@ def move(player, b):
             predictedValue = getValue(player, key)
             if predictedValue > maxValue:
                 maxValue = predictedValue
+                otherMoves.extend(maxValueMoves)
                 del maxValueMoves[:]
                 maxValueMoves.append(move)
             elif predictedValue == maxValue:
                 maxValueMoves.append(move)
+            else:
+                otherMoves.append(move)
 
-    # make move with highest value
-    if len(maxValueMoves) > 0:
-        b[random.choice(maxValueMoves)] = player
+    if len(otherMoves) > 0 and random.random() < 0.1: # %10 of time choose some random valid move
+        b[random.choice(otherMoves)] = player
 
-    else:
-        raise NameError('failed on finding a move')
+    else: # make move with highest value
+        if len(maxValueMoves) > 0:
+            b[random.choice(maxValueMoves)] = player
+        else:
+            raise NameError('failed on finding a move')
 
-def scoreGame(board):
+def scoreGame(b):
     win_cond = ((0,1,2),(3,4,5),(6,7,8),(0,3,6),(1,4,7),(2,5,8),(0,4,8),(2,4,6))
     for i in win_cond:
-        if board[i[0]] != -1 and board[i[0]] == board[i[1]] and board[i[1]] == board[i[2]]:
-            b = board
+        if b[i[0]] != -1 and b[i[0]] == b[i[1]] and b[i[1]] == b[i[2]]:
+            b = b
             key = `b[0]`+`b[1]`+`b[2]`+`b[3]`+`b[4]`+`b[5]`+`b[6]`+`b[7]`+`b[8]`
-            if key not in winning[board[i[0]]]:
-                winning[board[i[0]]][key] = key
+            if key not in winning[b[i[0]]]:
+                winning[b[i[0]]][key] = key
             if DEBUG:
-                print 'winner',board[i[0]]
-            return (0, board[i[0]])
-    if -1 in board:
+                print 'winner',b[i[0]]
+            return (0, b[i[0]])
+    if -1 in b:
         return (1, -1)
     else:
         if DEBUG:
@@ -59,7 +65,7 @@ def getValue(player, b):
         return v[key]
 
 def updateValues(player, reward, b, lm):
-    learningRate = 0.15
+    learningRate = 0.25
     v = V[player]
 
     #handle all 8 equivalent (rotation and mirrored) board layouts
@@ -132,7 +138,7 @@ def tictactoe(numGames):
                 player = (player+1) % 2
 
         #reward
-        rewardDraw = 2
+        rewardDraw = 4
         rewardWin = 5
         rewardLoss = -rewardWin
         if winner == -1: #draw
@@ -225,10 +231,10 @@ def printStats(playerScores, g, player, size):
 
 
 
-DEBUG = False
+DEBUG = True
 defaultValue = 0.1
 numPlayers = 2
 V = [{}]*numPlayers
 winning = [{}]*numPlayers
 
-tictactoe(5000)
+tictactoe(50000)
