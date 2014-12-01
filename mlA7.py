@@ -72,7 +72,7 @@ def updateValues(player, reward, b, lm):
     equivalent = ((0,1,2, 3,4,5, 6,7,8),
                   (2,5,8, 1,4,7, 0,3,6),
                   (8,7,6, 5,4,3, 2,1,0),
-                  (3,6,0, 7,4,1, 8,5,2),
+                  (6,3,0, 7,4,1, 8,5,2),
 
                   (2,1,0, 5,4,3, 8,7,6),
                   (0,3,6, 1,4,7, 2,5,8),
@@ -90,7 +90,10 @@ def updateValues(player, reward, b, lm):
             if not key in v:
                 v[key] = reward
             else:
-                v[key] = reward if reward!=0 else v[key]
+                if v[key] !=0.1 and v[key] != reward:
+                    print key
+                    raise NameError('v[key]:'+`v[key]`+' != reward:'+`reward`)
+                v[key] = reward
 
         else:
             #update value that led to current state
@@ -122,16 +125,14 @@ def tictactoe(numGames):
         while continuePlaying:
             otherLastMove = lastMove[:]
             lastMove = previousBoard[:]
-            if DEBUG:
-                old = getValue(player,board)
             previousBoard = board[:]
             move(player,board)
             if DEBUG:
                 printBoard(board, size)
+                old = getValue(player,board)
             continuePlaying, winner = scoreGame(board)
             if continuePlaying:
                 #update only this players values
-                old = getValue(player, lastMove)
                 updateValues(player, 0, board, lastMove)
                 if DEBUG:
                     print old,'->',getValue(player, board),'\n'
