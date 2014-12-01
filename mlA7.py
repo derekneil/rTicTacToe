@@ -145,7 +145,7 @@ def tictactoe(numGames):
         continuePlaying = 1
         old = 0
         if DEBUG:
-                printBoard(board, size)
+            printBoard(board, size)
         while continuePlaying:
             otherLastMove = lastMove[:]
             lastMove = previousBoard[:]
@@ -155,11 +155,13 @@ def tictactoe(numGames):
                 printBoard(board, size)
                 old = getValue(player,board)
             continuePlaying, winner = scoreGame(board)
+            #update only this players values
+            updateValues(player, 0, board, lastMove)
+            if DEBUG:
+                new = getValue(player, board)
+                if old != new:
+                    print old,'->',new,'\n'
             if continuePlaying:
-                #update only this players values
-                updateValues(player, 0, board, lastMove)
-                if DEBUG:
-                    print old,'->',getValue(player, board),'\n'
                 player = (player+1) % 2
 
         #reward
@@ -173,7 +175,9 @@ def tictactoe(numGames):
             updateValues( (player+1)%2, rewardLoss, previousBoard, otherLastMove)
 
         if DEBUG:
-            print old,'->',getValue(player, board),'\n'
+            new = getValue(player, board)
+            if old != new:
+                print old,'->',new,'\n'
 
         if (g<1000 and g%10==0) or g%resultRate == 0:
             result = [g+1]
