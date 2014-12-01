@@ -110,24 +110,26 @@ def tictactoe(numGames):
         player = 1 #random.randint(0, 1)
         winner = -1
         continuePlaying = 1
+        old = 0
+        if DEBUG:
+                printBoard(board, size)
         while continuePlaying:
             otherLastMove = lastMove[:]
             lastMove = previousBoard[:]
+            if DEBUG:
+                old = getValue(player,board)
             previousBoard = board[:]
             move(player,board)
+            if DEBUG:
+                printBoard(board, size)
             continuePlaying, winner = scoreGame(board)
             if continuePlaying:
                 #update only this players values
                 old = getValue(player, lastMove)
                 updateValues(player, 0, board, lastMove)
+                if DEBUG:
+                    print old,'->',getValue(player, board),'\n'
                 player = (player+1) % 2
-
-        if DEBUG:
-            old = [0.0]*4
-            old[0] = getValue((player+1) % 2, otherLastMove)
-            old[1] = getValue(player, lastMove)
-            old[2] = getValue((player+1) % 2, previousBoard)
-            old[3] = getValue(player, board)
 
         #reward
         rewardDraw = 2
@@ -143,15 +145,7 @@ def tictactoe(numGames):
             updateValues( (player+1)%2, rewardLoss, previousBoard, otherLastMove)
 
         if DEBUG:
-            print 'last four moves on the board were....'
-            printBoard(otherLastMove, size)
-            print old[0],'->',getValue((player+1) % 2, otherLastMove),'\n'
-            printBoard(lastMove, size)
-            print old[1],'->',getValue(player, lastMove),'\n'
-            printBoard(previousBoard, size)
-            print old[2],'->',getValue((player+1) % 2, previousBoard),'\n'
-            printBoard(board, size)
-            print old[3],'->',getValue(player, board),'\n'
+            print old,'->',getValue(player, board),'\n'
 
         if (g<1000 and g%10==0) or g%resultRate == 0:
             result = [g+1]
