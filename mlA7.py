@@ -48,13 +48,13 @@ def scoreGame(b):
                 winning[b[i[0]]][key] = key
             if DEBUG:
                 print 'winner',b[i[0]]
-            return (0, b[i[0]])
+            return (0, b[i[0]]) #stop playing, winner
     if -1 in b:
-        return (1, -1)
+        return (1, -1) #continue playing, no winner
     else:
         if DEBUG:
             print 'draw'
-        return (0, -1)
+        return (0, -1) #stop playing, no winner
 
 def getValue(player, b):
     v = V[player]
