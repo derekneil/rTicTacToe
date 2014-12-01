@@ -85,24 +85,32 @@ def updateValues(player, reward, b, lm):
         lmkey = `lm[i[0]]`+`lm[i[1]]`+`lm[i[2]]`+`lm[i[3]]`+`lm[i[4]]`+`lm[i[5]]`+`lm[i[6]]`+`lm[i[7]]`+`lm[i[8]]`
         key = `b[i[0]]`+`b[i[1]]`+`b[i[2]]`+`b[i[3]]`+`b[i[4]]`+`b[i[5]]`+`b[i[6]]`+`b[i[7]]`+`b[i[8]]`
 
-        if reward != 0:
-            #update value for winning state
+        if reward != 0: #update value for winning state
             if not key in v:
                 v[key] = reward
             else:
-                if v[key] !=0.1 and v[key] != reward:
+                if checkReward(v[key],reward):
                     print key
-                    raise NameError('v[key]:'+`v[key]`+' != reward:'+`reward`)
+                    print 'v[key]:'+`v[key]`+' reward:'+`reward`
+                    raise
                 v[key] = reward
 
-        else:
-            #update value that led to current state
+        else: #update value that led to current state
             if not key in v:
                 v[key] = defaultValue
             if not lmkey in v:
                 v[lmkey] = defaultValue
 
             v[lmkey] = learningRate * (reward + v[key] - v[lmkey])
+
+def checkReward(oldValue, reward):
+    if oldValue == -reward:
+        return True
+    if oldValue==rewardDraw and (reward==rewardWin or reward==rewardLoss):
+        return True
+    if (oldValue==rewardWin or oldValue==rewardLoss) and reward==rewardDraw:
+        return True
+    return False
 
 def tictactoe(numGames):
     size = 3
@@ -139,9 +147,6 @@ def tictactoe(numGames):
                 player = (player+1) % 2
 
         #reward
-        rewardDraw = 4
-        rewardWin = 5
-        rewardLoss = -rewardWin
         if winner == -1: #draw
             playerScores[numPlayers] += 1
             updateValues(player, rewardDraw, board, lastMove)
@@ -233,6 +238,9 @@ def printStats(playerScores, g, player, size):
 
 
 DEBUG = True
+rewardDraw = 4
+rewardWin = 5
+rewardLoss = -rewardWin
 defaultValue = 0.1
 numPlayers = 2
 V = [{}]*numPlayers
