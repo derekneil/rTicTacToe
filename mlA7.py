@@ -59,6 +59,16 @@ def scoreGame(b):
 def getValue(player, b):
     v = V[player]
     key = `b[0]`+`b[1]`+`b[2]`+`b[3]`+`b[4]`+`b[5]`+`b[6]`+`b[7]`+`b[8]`
+    if key=='-1-1-1-1-1-1-1-1-1':
+        return defaultValue
+    if not key in v:
+        return defaultValue
+    else:
+        return v[key]
+
+def checkValue(v,key):
+    if key=='-1-1-1-1-1-1-1-1-1':
+        return defaultValue
     if not key in v:
         return defaultValue
     else:
