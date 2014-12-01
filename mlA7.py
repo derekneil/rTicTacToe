@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import time
 import math
 import sys
+import numpy as np
 
 def move(player, b):
     # check value of each possible move that could be made from current checkValu
@@ -169,32 +170,17 @@ def tictactoe(numGames):
     graphResults(results, numGames)
 
 def graphResults(results, numGames):
-    #graph results
     fig, ax = plt.subplots()
     fig.canvas.draw()
     first = fig.add_subplot(111)
     second = first.twinx()
     cmap = plt.cm.get_cmap('spectral')
-    game = [0]*len(results)
-    X = [0]*len(results)
-    O = [0]*len(results)
-    D = [0]*len(results)
-    B = [0]*len(results)
-    W = [0]*len(results)
-    i = 0
-    for g in results:
-        game[i] = g[0]
-        X[i] = g[1]
-        O[i] = g[2]
-        D[i] = g[3]
-        B[i] = g[4]
-        W[i] = g[5]
-        i+=1
-    first.scatter (x=game, y=X, s=25, c=cmap(0.7), marker='o')
-    first.scatter (x=game, y=O, s=25, c=cmap(0.8), marker='x')
-    first.scatter (x=game, y=D, s=25, c=cmap(0.5), marker='_', label="draw")
-    second.scatter(x=game, y=B, s=25, c=cmap(0.1), marker='1', label="states")
-    second.scatter(x=game, y=W, s=25, c=cmap(0.3), marker='2', label="winning")
+    results = np.array(results)
+    first.scatter (x=results[:,0], y=results[:,1], s=25, c=cmap(0.7), marker='o')
+    first.scatter (x=results[:,0], y=results[:,2], s=25, c=cmap(0.8), marker='x')
+    first.scatter (x=results[:,0], y=results[:,3], s=25, c=cmap(0.5), marker='_', label="draw")
+    second.scatter(x=results[:,0], y=results[:,4], s=25, c=cmap(0.1), marker='1', label="states")
+    second.scatter(x=results[:,0], y=results[:,5], s=25, c=cmap(0.3), marker='2', label="winning")
 
     plt.xlabel("games")
     plt.xlim([0,numGames])
