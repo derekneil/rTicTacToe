@@ -8,12 +8,14 @@ import math
 import sys
 import numpy as np
 
-def move(player, b):
+def move(player, b, g, gs):
     # check value of each possible move that could be made from current state
     maxValue = (-(sys.maxint - 1))
     maxValueMoves = []
     otherMoves = []
     n = len(b)
+    global totalMoves
+    totalMoves+=1
     for move in xrange(n):
         if b[move] == -1:
             key = b[:]
@@ -29,8 +31,16 @@ def move(player, b):
             else:
                 otherMoves.append(move)
 
-    if len(otherMoves) > 0 and random.random() < 0.1: # %10 of time choose some random valid move
+    size = len(otherMoves)
+    oSize = size>0
+    oR = random.random()
+    oPick = oR<0.1 # %10 of time choose some random valid move
+    p1Rand = (gs%2==0 and player==1)
+    p2Rand = (gs%2==1 and player==0)
+    if g<70000 and (g<10000 or p1Rand or p2Rand) and oSize and oPick:
         b[random.choice(otherMoves)] = player
+        global randNonOptimals
+        randNonOptimals+=1
 
     else: # make move with highest value
         if len(maxValueMoves) > 0:
@@ -59,52 +69,47 @@ def scoreGame(b):
 def getValue(player, b):
     v = V[player]
     key = `b[0]`+`b[1]`+`b[2]`+`b[3]`+`b[4]`+`b[5]`+`b[6]`+`b[7]`+`b[8]`
-    if key=='-1-1-1-1-1-1-1-1-1':
-        return defaultValue
-    if not key in v:
+    if not key in v or key=='-1-1-1-1-1-1-1-1-1':
         return defaultValue
     else:
         return v[key]
 
 def checkValue(v,key):
-    if key=='-1-1-1-1-1-1-1-1-1':
-        return defaultValue
-    if not key in v:
+    if not key in v or key=='-1-1-1-1-1-1-1-1-1':
         return defaultValue
     else:
         return v[key]
 
 def updateValues(player, reward, b, lm):
-    learningRate = 0.25
+    learningRate = 0.15
     v = V[player]
 
     #handle all 8 equivalent (rotation and mirrored) board layouts
-    equivalent = ((0,1,2, 3,4,5, 6,7,8),
-                  (2,5,8, 1,4,7, 0,3,6),
-                  (8,7,6, 5,4,3, 2,1,0),
-                  (6,3,0, 7,4,1, 8,5,2),
+    equivalent = [[0,1,2, 3,4,5, 6,7,8], #regular board
+                (2,5,8, 1,4,7, 0,3,6), #rotations...
+                (8,7,6, 5,4,3, 2,1,0),
+                (6,3,0, 7,4,1, 8,5,2),
 
-                  (2,1,0, 5,4,3, 8,7,6),
-                  (0,3,6, 1,4,7, 2,5,8),
-                  (6,7,8, 3,4,5, 0,1,2),
-                  (8,5,2, 7,4,1, 6,3,0))
+                (2,1,0, 5,4,3, 8,7,6), #mirrored board
+                (0,3,6, 1,4,7, 2,5,8), #rotations...
+                (6,7,8, 3,4,5, 0,1,2),
+                (8,5,2, 7,4,1, 6,3,0)]
 
     lmkey = ''
     key = ''
 
-    if reward!=0:
+    if reward!=0: #update value for winning state
         for i in equivalent:
             key = `b[i[0]]`+`b[i[1]]`+`b[i[2]]`+`b[i[3]]`+`b[i[4]]`+`b[i[5]]`+`b[i[6]]`+`b[i[7]]`+`b[i[8]]`
 
-            if reward != 0: #update value for winning state
-                if not key in v:
-                    v[key] = reward
-                else:
-                    if checkReward(v[key],reward):
-                        print key
-                        print 'v[key]:'+`v[key]`+' reward:'+`reward`
-                        raise
-                    v[key] = reward
+            if not key in v:
+                v[key] = reward
+            else:
+                if checkReward(v[key],reward):
+                    print key
+                    print 'v[key]:'+`v[key]`+' reward:'+`reward`
+                    raise
+                v[key] = reward
 
     else: #it's an intermediate update
         batchUpdate =[]*len(equivalent)
@@ -130,9 +135,11 @@ def checkReward(oldValue, reward):
 
 def tictactoe(numGames):
     size = 3
-    playerScores = [0]*(numPlayers+1) #add one to store draws
+    playerScores = [0]*(numPlayers+1) #add draws
     results = []
-    resultRate = int(math.sqrt(numGames))
+    inter = [0]*(numPlayers+1)
+    inters=0
+    gs=0
 
     for g in xrange(numGames):
 
@@ -144,13 +151,15 @@ def tictactoe(numGames):
         winner = -1
         continuePlaying = 1
         old = 0
+        if g%10000==0:
+            gs+=1
         if DEBUG:
             printBoard(board, size)
         while continuePlaying:
             otherLastMove = lastMove[:]
             lastMove = previousBoard[:]
             previousBoard = board[:]
-            move(player,board)
+            move(player,board, g, gs)
             if DEBUG:
                 printBoard(board, size)
                 old = getValue(player,board)
@@ -165,12 +174,15 @@ def tictactoe(numGames):
                 player = (player+1) % 2
 
         #reward
+        inters+=1
         if winner == -1: #draw
             playerScores[numPlayers] += 1
+            inter[winner] += 1
             updateValues(player, rewardDraw, board, lastMove)
             updateValues( (player+1)%2, rewardDraw, previousBoard, otherLastMove)
         else: #winner==player
             playerScores[winner] +=1
+            inter[winner]+=1
             updateValues(player, rewardWin, board, lastMove)
             updateValues( (player+1)%2, rewardLoss, previousBoard, otherLastMove)
 
@@ -179,17 +191,24 @@ def tictactoe(numGames):
             if old != new:
                 print old,'->',new,'\n'
 
-        if (g<1000 and g%10==0) or g%resultRate == 0:
+        if (g<1000 and g%10==0) or g%1000==0:
             result = [g+1]
             for i in xrange(numPlayers):
                 result.append(float(playerScores[i])/(g+1))
             result.append(float(playerScores[numPlayers])/(g+1))
             result.append(len(V[0]))
             result.append(len(winning[0])+len(winning[1]))
+            result.append(float(randNonOptimals)/totalMoves)
+            result.append(float(inter[numPlayers])/inters)
+            for i in xrange(numPlayers):
+                result.append(float(inter[i])/inters)
+            inters=0
+            inter =[0]*(numPlayers+1)
             results.append(result)
 
+
         #intermediate results
-        if DEBUG or g%resultRate == 0:
+        if DEBUG or g%1000 == 0:
             printStats(playerScores, g, player, size)
 #             time.sleep(5)
 
@@ -204,10 +223,15 @@ def graphResults(results, numGames):
     results = np.array(results)
     first.scatter (x=results[:,0], y=results[:,1], s=25, c=cmap(0.7), marker='o')
     first.scatter (x=results[:,0], y=results[:,2], s=25, c=cmap(0.8), marker='x')
+    first.scatter (x=results[:,0], y=results[:,8], s=25, c=cmap(0.9), marker='o')
+    first.scatter (x=results[:,0], y=results[:,9], s=25, c=cmap(0.9), marker='x')
     first.scatter (x=results[:,0], y=results[:,3], s=25, c=cmap(0.5), marker='_', label="draw")
+    first.scatter (x=results[:,0], y=results[:,7], s=25, c=cmap(0.9), marker='_', label="interdraw")
+    first.scatter (x=results[:,0], y=results[:,6], s=25, c=cmap(0.9), marker='+', label="randNonOpt")
     second.scatter(x=results[:,0], y=results[:,4], s=25, c=cmap(0.1), marker='1', label="states")
     second.scatter(x=results[:,0], y=results[:,5], s=25, c=cmap(0.3), marker='2', label="winning")
 
+#     first.lim([0,1])
     plt.xlabel("games")
     plt.xlim([0,numGames])
     plt.legend()
@@ -243,6 +267,7 @@ def printStats(playerScores, g, player, size):
         print 'player' + `i` + ' score: ' + `float(playerScores[i]) / (g + 1)`
     print 'draws: ' + `float(playerScores[numPlayers]) / (g + 1)`
     print 'done game', g
+    print 'randNonOptimals', float(randNonOptimals)/totalMoves
     print 'boards O:', len(V[0]), ' X:',len(V[1])
     print 'winning', len(winning[0])+len(winning[1])
     v = V[1]
@@ -258,12 +283,14 @@ def printStats(playerScores, g, player, size):
 
 
 DEBUG = True
-rewardDraw = 4
+rewardDraw = 1
 rewardWin = 5
 rewardLoss = -rewardWin
 defaultValue = 0.1
 numPlayers = 2
 V = [{}]*numPlayers
 winning = [{}]*numPlayers
+randNonOptimals = 0
+totalMoves = 0
 
-tictactoe(50000)
+tictactoe(10)
