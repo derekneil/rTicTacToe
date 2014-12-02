@@ -67,7 +67,6 @@ def scoreGame(b):
         return (0, -1) #stop playing, no winner
 
 def getValue(player, b):
-    v = V[player]
     key = `b[0]`+`b[1]`+`b[2]`+`b[3]`+`b[4]`+`b[5]`+`b[6]`+`b[7]`+`b[8]`
     if not key in v or key=='-1-1-1-1-1-1-1-1-1':
         return defaultValue
@@ -82,7 +81,6 @@ def checkValue(v,key):
 
 def updateValues(player, reward, b, lm):
     learningRate = 0.15
-    v = V[player]
 
     #handle all 8 equivalent (rotation and mirrored) board layouts
     equivalent = [[0,1,2, 3,4,5, 6,7,8], #regular board
@@ -196,7 +194,7 @@ def tictactoe(numGames):
             for i in xrange(numPlayers):
                 result.append(float(playerScores[i])/(g+1))
             result.append(float(playerScores[numPlayers])/(g+1))
-            result.append(len(V[0]))
+            result.append(len(v))
             result.append(len(winning[0])+len(winning[1]))
             result.append(float(randNonOptimals)/totalMoves)
             result.append(float(inter[numPlayers])/inters)
@@ -268,9 +266,8 @@ def printStats(playerScores, g, player, size):
     print 'draws: ' + `float(playerScores[numPlayers]) / (g + 1)`
     print 'done game', g
     print 'randNonOptimals', float(randNonOptimals)/totalMoves
-    print 'boards O:', len(V[0]), ' X:',len(V[1])
+    print 'boards ', len(v)
     print 'winning', len(winning[0])+len(winning[1])
-    v = V[1]
     for j in xrange(0,size):
         for k in xrange(0,size):
             boardkey = [-1]*(size*size)
@@ -282,15 +279,15 @@ def printStats(playerScores, g, player, size):
 
 
 
-DEBUG = True
+DEBUG = False
 rewardDraw = 1
 rewardWin = 5
 rewardLoss = -rewardWin
 defaultValue = 0.1
 numPlayers = 2
-V = [{}]*numPlayers
+v = {}
 winning = [{}]*numPlayers
 randNonOptimals = 0
 totalMoves = 0
 
-tictactoe(10)
+tictactoe(100000)
