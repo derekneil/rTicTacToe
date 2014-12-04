@@ -119,8 +119,7 @@ def updateValues(player, reward, b, lm):
             #             u       0     1          2                    3
 
         for u in batchUpdate:
-            v[u[0]] = learningRate * (reward + u[3] - u[2])
-#             print 'w/v[key]',checkValue(v,u[1]),' v[lmkey] update', u[2],'->', checkValue(v,u[0])
+            v[u[0]] = u[2] + learningRate * (reward + u[3] - u[2])
 
 def checkReward(oldValue, reward):
     if oldValue == -reward:
@@ -219,13 +218,13 @@ def graphResults(results, numGames):
     second = first.twinx()
     cmap = plt.cm.get_cmap('spectral')
     results = np.array(results)
-    first.scatter (x=results[:,0], y=results[:,1], s=25, c=cmap(0.7), marker='o')
+    first.scatter (x=results[:,0], y=results[:,1], s=25, c=cmap(0.8), marker='o')
     first.scatter (x=results[:,0], y=results[:,2], s=25, c=cmap(0.8), marker='x')
     first.scatter (x=results[:,0], y=results[:,8], s=25, c=cmap(0.9), marker='o')
     first.scatter (x=results[:,0], y=results[:,9], s=25, c=cmap(0.9), marker='x')
-    first.scatter (x=results[:,0], y=results[:,3], s=25, c=cmap(0.5), marker='_', label="draw")
+    first.scatter (x=results[:,0], y=results[:,3], s=25, c=cmap(0.8), marker='_', label="draw")
     first.scatter (x=results[:,0], y=results[:,7], s=25, c=cmap(0.9), marker='_', label="interdraw")
-    first.scatter (x=results[:,0], y=results[:,6], s=25, c=cmap(0.9), marker='+', label="randNonOpt")
+    first.scatter (x=results[:,0], y=results[:,6], s=25, c=cmap(0.5), marker='+', label="rand")
     second.scatter(x=results[:,0], y=results[:,4], s=25, c=cmap(0.1), marker='1', label="states")
     second.scatter(x=results[:,0], y=results[:,5], s=25, c=cmap(0.3), marker='2', label="winning")
 
